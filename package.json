@@ -1,0 +1,11 @@
+{
+  "name": "@salut_bricole/root",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "lerna": "^7.1.1"
+  }
+}
