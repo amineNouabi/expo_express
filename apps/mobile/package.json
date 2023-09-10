@@ -1,8 +1,7 @@
 {
   "name": "@salut_bricole/mobile",
-  "version": "0.0.1",
-  "private": true,
-  "scripts": {
+  "version": "0.0.0",
+ "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
