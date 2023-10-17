@@ -1,22 +1,50 @@
 import { bind } from "decko";
 import { NextFunction, Request, Response, Handler } from "express";
 import passport from "passport";
-import { Strategy as _Strategy, StrategyOptions } from "passport-jwt";
+import { Strategy as _Strategy, StrategyOptions, ExtractJwt } from "passport-jwt";
+import { SignOptions, sign } from "jsonwebtoken";
 
 import { User } from "@prisma/client";
 import { Strategy } from "./strategy";
 
-import AppError from "../../../../config/AppError";
+import { env, AppError, logger } from "../../../../config/index";
 
 export class JwtStrategy extends Strategy {
-	private strategyOptions: StrategyOptions;
+	static readonly strategyOptions: StrategyOptions = {
+		audience: env.JWT.AUDIENCE,
+		issuer: env.JWT.ISSUER,
+		jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+		secretOrKey: env.JWT.SECRET,
+	};
 
-	public constructor(strategyOptions: StrategyOptions) {
+	static readonly signOptions: SignOptions = {
+		audience: this.strategyOptions.audience,
+		expiresIn: env.JWT.EXPIRES_IN,
+		issuer: env.JWT.ISSUER,
+	};
+
+	public constructor() {
 		super();
-		this.strategyOptions = strategyOptions;
-		this._strategy = new _Strategy(this.strategyOptions, this.verify);
+		this._strategy = new _Strategy(JwtStrategy.strategyOptions, this.verify);
 	}
 
+	/**
+	 * Create JWT
+	 *
+	 * @param userID Used for JWT payload
+	 * @returns Returns JWT
+	 */
+	static createToken(userID: string): string {
+		return sign({ userID }, JwtStrategy.strategyOptions.secretOrKey as string, JwtStrategy.signOptions);
+	}
+
+	/**
+	 * Verify Callback function for JWT Strategy
+	 *
+	 * @param payload Payload from JWT
+	 * @param next Callback function params: (err, user, info)
+	 * @returns Returns User from database
+	 */
 	@bind
 	public async verify(payload: any, next: any): Promise<void> {
 		try {
@@ -47,6 +75,7 @@ export class JwtStrategy extends Strategy {
 						case "jwt expired":
 							return next(new AppError("Please Login again.", 401));
 						default:
+							logger.error(`Unknown info.message in JwtStrategy authenticate. ${info.message}`);
 							return next(new AppError("Unauthorized", 401));
 					}
 				}

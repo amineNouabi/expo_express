@@ -1,5 +1,5 @@
 import { json } from "express";
-import type { Router, Request, Response, NextFunction } from "express";
+import type { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
@@ -7,38 +7,52 @@ import compression from "compression";
 import { AuthService } from "../services/auth";
 
 import morganMiddleware from "./morgan";
-import logger from "../../config/logger";
-import AppError from "../../config/AppError";
 
-import { env } from "../../config/globals";
+import { env, AppError } from "../../config/index";
 
-export function registerMiddleware(router: Router) {
-	router.use(helmet());
+/**
+ * Register all middlewares
+ *
+ * @export
+ * @param app Express Application
+ */
+export function registerMiddleware(app: Application) {
+	app.use(helmet());
 
-	if (process.env.NODE_ENV === "development") router.use(cors({ origin: "*" }));
-	else router.use(cors({ origin: [] }));
+	if (env.NODE_ENV === "development") app.use(cors({ origin: "*" }));
+	else app.use(cors({ origin: [] }));
 
-	router.use(morganMiddleware);
+	app.use(morganMiddleware);
 
-	router.use(json());
-	router.use(compression());
+	app.use(json());
+	app.use(compression());
 
 	new AuthService().initStrategies();
 }
 
-export function registerErrorHandler(router: Router): void {
-	router.all("*", (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Register error handlers for the application
+ *
+ * @param app Express Application
+ */
+export function registerErrorHandler(app: Application) {
+	/**
+	 * 404 middleware (Not found)
+	 *
+	 */
+	app.all("*", (req: Request, _res: Response, next: NextFunction) => {
 		next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 	});
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	router.use((err: AppError, req: Request, res: Response, next: NextFunction): Response => {
-		err.statusCode = err.statusCode || 500;
-		err.status = err.status || "error";
+	/**
+	 * Error handler
+	 *
+	 */
+	app.use((err: AppError | Error, req: Request, res: Response, _next: NextFunction): Response => {
+		// logger.error("Error: Inside Error Handler");
+		console.log(err);
 
-		logger.error("Error: Inside Error Handler");
-		logger.error(err);
-		if (env.NODE_ENV === "development") return AppError.sendErrorDev(err, req, res);
+		if (env.NODE_ENV !== "production") return AppError.sendErrorDev(err, req, res);
 		return AppError.sendErrorProd(err, req, res);
 	});
 }

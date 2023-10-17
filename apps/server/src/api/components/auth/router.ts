@@ -45,5 +45,8 @@ export class AuthRouter {
 			this.authService.validateRequest,
 			this.controller.loginUser,
 		);
+
+		this.router.post("/send-sms-code", this.controller.sendSmsCode);
+		this.router.post("/verify-sms-code", this.controller.verifySmsCode);
 	}
 }

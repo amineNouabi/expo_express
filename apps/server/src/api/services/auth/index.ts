@@ -1,45 +1,53 @@
-import { bind } from "decko";
-import { Handler, NextFunction, Request, Response } from "express";
-import { ValidationError, validationResult } from "express-validator";
 import passport from "passport";
-import { ExtractJwt, StrategyOptions } from "passport-jwt";
-import { SignOptions, sign } from "jsonwebtoken";
+import { Handler, NextFunction, Request, Response } from "express";
+import { bind } from "decko";
+import { ValidationError, validationResult } from "express-validator";
 
 import { JwtStrategy } from "./strategies/jwt";
 import AppError from "../../../config/AppError";
-import { env } from "../../../config/globals";
 
-export type PassportStrategy = "jwt";
+export type PassportStrategy = "jwt" | "facebook" | "google";
 
+/**
+ * AuthService
+ *
+ * Available passport strategies for authentication:
+ *  - JWT (default)
+ *  - GOOGLE
+ *  - FACEBOOK
+ *
+ * Pass a strategy when initializing module routes to setup this strategy for the complete module: Example: new UserRoutes('jwt')
+ *
+ * To setup a strategy for individual endpoints in a module pass the strategy on isAuthorized call
+ * Example: isAuthorized('jwt')
+ */
 export class AuthService {
 	private defaultStrategy: PassportStrategy;
 	private jwtStrategy: JwtStrategy;
-
-	private readonly jwtStrategyOptions: StrategyOptions = {
-		audience: env.JWT.AUDIENCE,
-		issuer: env.JWT.ISSUER,
-		jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-		secretOrKey: env.JWT.SECRET,
-	};
-
-	private readonly signOptions: SignOptions = {
-		audience: env.JWT.AUDIENCE,
-		expiresIn: env.JWT.EXPIRES_IN,
-		issuer: env.JWT.ISSUER,
-	};
+	// private googleStrategy: GoogleStrategy;
+	// private facebookStrategy: FacebookStrategy;
 
 	public constructor(defaultStrategy: PassportStrategy = "jwt") {
 		this.defaultStrategy = defaultStrategy;
-		this.jwtStrategy = new JwtStrategy(this.jwtStrategyOptions);
+		this.jwtStrategy = new JwtStrategy();
+		// this.googleStrategy = new GoogleStrategy();
+		// this.facebookStrategy = new FacebookStrategy();
 	}
 
 	public initStrategies(): void {
 		passport.use("jwt", this.jwtStrategy.strategy);
+		// passport.use('google', this.googleStrategy.strategy);
+		// passport.use('facebook', this.facebookStrategy.strategy);
 	}
 
-	@bind
+	/**
+	 * Create JWT
+	 *
+	 * @param userID Used for JWT payload
+	 * @returns Returns JWT
+	 */
 	public createToken(userID: string): string {
-		return sign({ userID }, this.jwtStrategyOptions.secretOrKey as string, this.signOptions);
+		return JwtStrategy.createToken(userID);
 	}
 
 	@bind
@@ -53,6 +61,10 @@ export class AuthService {
 			switch (strategy) {
 				case "jwt":
 					return this.jwtStrategy.isAuthorized(req, res, next);
+				// case "google":
+				// 	return this.googleStrategy.isAuthorized(req, res, next);
+				// case "facebook":
+				// 	return this.facebookStrategy.isAuthorized(req, res, next);
 				default:
 					throw new AppError("Unknown authentication strategy", 500);
 			}

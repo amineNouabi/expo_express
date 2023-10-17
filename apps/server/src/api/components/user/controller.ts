@@ -1,7 +1,7 @@
 import { bind } from "decko";
 import type { NextFunction, Request, Response } from "express";
 
-import { UserRepository } from "../../../config/db.client";
+import { UserRepository } from "../../../config/db-client";
 import AppError from "../../../config/AppError";
 import logger from "../../../config/logger";
 
