@@ -74,43 +74,43 @@ export default class AuthContoller {
 		}
 	}
 
-	@bind
-	async sendSmsCode(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
-		const { phone } = req.body;
+	// @bind
+	// async sendSmsCode(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+	// 	const { phone } = req.body;
 
-		console.log("Phone : ", phone);
+	// 	console.log("Phone : ", phone);
 
-		try {
-			const { requestId } = await this.messagingService.sendVerificationCodeSms(phone);
+	// 	try {
+	// 		const { requestId } = await this.messagingService.sendVerificationCodeSms(phone);
 
-			console.log("requestId : ", requestId);
+	// 		console.log("requestId : ", requestId);
 
-			return res.status(201).json({
-				status: "success",
-				requestId,
-			});
-		} catch (err) {
-			console.log("err : ", err);
-			next(err);
-		}
-	}
+	// 		return res.status(201).json({
+	// 			status: "success",
+	// 			requestId,
+	// 		});
+	// 	} catch (err) {
+	// 		console.log("err : ", err);
+	// 		next(err);
+	// 	}
+	// }
 
-	async verifySmsCode(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
-		const { requestId, code } = req.body;
+	// async verifySmsCode(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+	// 	const { requestId, code } = req.body;
 
-		console.log("requestId : ", requestId);
-		console.log("code : ", code);
+	// 	console.log("requestId : ", requestId);
+	// 	console.log("code : ", code);
 
-		try {
-			const status = await this.messagingService.checkVerificationCodeSms(requestId, code);
-			console.log("status : ", status);
+	// 	try {
+	// 		const status = await this.messagingService.checkVerificationCodeSms(requestId, code);
+	// 		console.log("status : ", status);
 
-			return res.status(201).json({
-				status,
-			});
-		} catch (err) {
-			console.log("err : ", err);
-			next(err);
-		}
-	}
+	// 		return res.status(201).json({
+	// 			status,
+	// 		});
+	// 	} catch (err) {
+	// 		console.log("err : ", err);
+	// 		next(err);
+	// 	}
+	// }
 }

@@ -24,6 +24,9 @@ export const env = {
 		API_SECRET: process.env.VONAGE_API_SECRET || "",
 		APP_ID: process.env.VONAGE_APP_ID || "",
 	},
+	SMSTO: {
+		API_KEY: process.env.SMSTO_API_KEY || "",
+	},
 };
 
 export default env;

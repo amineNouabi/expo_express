@@ -1,9 +1,9 @@
 {
   "name": "@salut_bricole/root",
-	"version": "0.0.0",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
-	"dev": "yarn lerna run dev"
+    "dev": "yarn lerna run dev"
   },
   "workspaces": [
     "apps/*"

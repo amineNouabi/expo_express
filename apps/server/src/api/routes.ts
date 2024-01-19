@@ -7,7 +7,7 @@ import logger from "../config/logger";
 /**
  * Initialize all REST routes
  *
- * @param {Application} app Express Application
+ * @param { Application } app Express Application
  * @returns {void}
  */
 export function initRestRoutes(app: Application): void {
