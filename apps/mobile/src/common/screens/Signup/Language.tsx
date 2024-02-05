@@ -5,6 +5,8 @@ import { Button, RadioButton } from "react-native-paper";
 import { useTranslation } from "react-i18next";
 import { useNavigation } from "@react-navigation/native";
 
+import RNRestart from "react-native-restart";
+
 // import HeaderLayout from "../layouts/Header";
 
 type Local = "en" | "fr" | "ar";
@@ -18,11 +20,13 @@ function Language() {
 		setValue(lng);
 		i18n.changeLanguage(lng)
 			.then(() => {
+				I18nManager.allowRTL(i18n.language === "ar");
 				I18nManager.forceRTL(i18n.language === "ar");
+				RNRestart.Restart();
 			})
 			.catch(err => {
 				console.log(err);
-				console.log("something went wrong while applying RTL");
+				console.log("something went wrong while Changing language");
 			});
 	};
 
