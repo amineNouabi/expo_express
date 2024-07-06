@@ -1,5 +1,5 @@
 {
-	"name": "@salut_bricole/server",
+	"name": "@expo_express/server",
 	"version": "0.0.0",
 	"main": "dist/main.js",
 	"author": "amineNouabi",
